@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "zatca-compliance-server": {
+      "command": "/home/abdel/.nvm/versions/node/v20.20.2/bin/node",
+      "args": ["server.js"]
+    }
+  }
+}

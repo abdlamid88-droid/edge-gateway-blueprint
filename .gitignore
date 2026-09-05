@@ -1,0 +1,9 @@
+node_modules/
+.cache/
+__pycache__/
+*.py[cod]
+*.db
+*.db-wal
+*.db-shm
+mosquitto_data/
+edge_buffer_data/

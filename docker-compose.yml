@@ -1,0 +1,37 @@
+services:
+  mqtt-broker:
+    image: eclipse-mosquitto:2.0
+    container_name: edge_mqtt_broker
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./config/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - mosquitto_data:/mosquitto/data
+    networks:
+      - edge-net
+
+  edge-gateway:
+    build: .
+    container_name: edge_gateway_daemon
+    restart: unless-stopped
+    depends_on:
+      - mqtt-broker
+    environment:
+      - MQTT_BROKER=mqtt-broker
+      - MQTT_PORT=1883
+      - MQTT_TOPIC=industrial/telemetry
+      - DB_PATH=/data/edge_buffer.db
+      - BATCH_SIZE=10
+    volumes:
+      - edge_buffer_data:/data
+    networks:
+      - edge-net
+
+volumes:
+  mosquitto_data:
+  edge_buffer_data:
+
+networks:
+  edge-net:
+    driver: bridge
