@@ -8,24 +8,23 @@ An enterprise-ready, fault-tolerant Edge Gateway blueprint designed for resilien
 
 ```mermaid
 flowchart TD
-    subgraph Edge Layer [Industrial Field / Edge Device]
+    subgraph Edge_Layer [Industrial Field / Edge Device]
         Sensors[Physical Sensors: Modbus TCP / KNX / RTU] -->|Raw Telemetry Stream| Daemon[Edge Gateway Daemon]
         
-        subgraph Resilient Storage
+        subgraph Resilient_Storage [Resilient Storage]
             Daemon -->|SHA-256 Deduplication| Buffer[(SQLite Buffer: WAL Mode)]
             Buffer -.->|Batch Retrieval: status=pending| Daemon
         end
     end
 
-    subgraph Transport Layer
+    subgraph Transport_Layer [Transport Layer]
         Daemon -->|Store & Forward: MQTT QoS 1| Broker[Local / Central MQTT Broker]
     end
 
-    subgraph Upstream Enterprise Layer
+    subgraph Upstream_Layer [Upstream Enterprise Layer]
         Broker -->|Topic Subscription| Timescale[(TimescaleDB / PostgreSQL)]
         Broker -->|Real-time Metrics| Dashboard[Grafana / SCADA Monitoring]
-    end
-Architectural Highlights
+    endArchitectural Highlights
 Store & Forward Resiliency: Continuous telemetry ingestion into an embedded local database buffer during communication blackouts, with automatic batch draining upon link restoration.
 
 SQLite WAL (Write-Ahead Logging): Eliminates database concurrency locks by separating sequential append writes from batch read synchronization pipelines.
