@@ -18,17 +18,43 @@ flowchart TD
     end
 
     subgraph Transport_Layer [Transport Layer]
-        Daemon -->|Store & Forward: MQTT QoS 1| Broker[Local / Central MQTT Broker]
+        Daemon -->|Store & Forward: MQTW QoS 1| Broker[Local / Central MQTT Broker]
     end
 
     subgraph Upstream_Layer [Upstream Enterprise Layer]
         Broker -->|Topic Subscription| Timescale[(TimescaleDB / PostgreSQL)]
         Broker -->|Real-time Metrics| Dashboard[Grafana / SCADA Monitoring]
-    endArchitectural Highlights
-Store & Forward Resiliency: Continuous telemetry ingestion into an embedded local database buffer during communication blackouts, with automatic batch draining upon link restoration.
+    end
+```
 
-SQLite WAL (Write-Ahead Logging): Eliminates database concurrency locks by separating sequential append writes from batch read synchronization pipelines.
+---
 
-QoS 1 Idempotency & Deduplication: Prevents duplicated metric accumulation by computing deterministic SHA-256 payload hashes combined with ON CONFLICT DO NOTHING.
+## Architectural Highlights
 
-Containerized Workload: Isolated daemon deployment orchestrated alongside Mosquitto MQTT broker via Docker Compose.
+*`**Store & Forward Resiliency:** Continuous telemetry ingestion into an embedded local database buffer during communication blackouts, with automatic batch draining upon link restoration.
+* **SQLite WAL (Write-Ahead Logging):** Eliminates database concurrency locks by separating sequential append writes from batch read synchronization pipelines.
+* **QoS 1 Idempotency & Deduplication:** Prevents duplicated metric accumulation by computing deterministic SHA-256 payload hashes combined with `ON CONFLICT DO NOTHING`.
+* **Containerized Workload:** Isolated daemon deployment orchestrated alongside Mosquitto MQTT broker via Docker Compose.
+
+---
+
+## Quickstart
+
+### 1. Build and Run
+```bash
+docker compose up -d --build
+```
+
+### 2. Stream Live Gateway Logs``bash
+docker compose logs -f edge-gateway
+```
+
+### 3. Monitor MQTT Ingestion
+``bash
+docker exec -it edge_mqtt_broker mosquitto_sub -t "industrial/telemetry" -v
+```
+
+---
+
+## License
+MIT License.
