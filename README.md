@@ -39,7 +39,7 @@ flowchart TD
     ModbusSensors -->|Raw Registers| Adapters
     KNXSensors -->|Raw Telegrams| Adapters
     SyncEngine -->|Publish QoS 1| MQTTBroker
-    MQTTBroker -.->|Strict Delivery ACK (PUBACK)| SyncEngine
+    MQTTBroker -.->|Strict Delivery ACK PUBACK| SyncEngine
     SyncEngine -->|Mark synced=1 / synced_at=NOW| BufferDB
     MQTTBroker -->|Telemetry Stream| CloudStorage
 
