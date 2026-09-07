@@ -6,23 +6,35 @@ services:
     ports:
       - "1883:1883"
     volumes:
-      - ./config/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ./config/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
       - mosquitto_data:/mosquitto/data
+      - mosquitto_log:/mosquitto/log
+    healthcheck:
+      test: ["CMD-SHELL", "timeout 2 sh -c 'cat < /dev/null > /dev/tcp/127.0.0.1/1883' || exit 0"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
     networks:
       - edge-net
 
   edge-gateway:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: edge_gateway_daemon
     restart: unless-stopped
     depends_on:
-      - mqtt-broker
+      mqtt-broker:
+        condition: service_started
     environment:
       - MQTT_BROKER=mqtt-broker
       - MQTT_PORT=1883
       - MQTT_TOPIC=industrial/telemetry
       - DB_PATH=/data/edge_buffer.db
       - BATCH_SIZE=10
+      - POLL_INTERVAL_SEC=2.0
+      - LOG_LEVEL=INFO
     volumes:
       - edge_buffer_data:/data
     networks:
@@ -30,6 +42,7 @@ services:
 
 volumes:
   mosquitto_data:
+  mosquitto_log:
   edge_buffer_data:
 
 networks:
