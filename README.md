@@ -68,8 +68,7 @@ Standard SQLite operating in rollback journal mode locks the entire database fil
 
 ### C. Edge Deduplication & Idempotency
 Telemetry retries or field bus retransmissions can flood upstream analytical systems with duplicate data points.
-* **Deterministic SHA-256 Hashing:** Every measurement calculates a hash:
-  $$\text{hash} = \text{SHA256}(\text{device\_id} \mathbin{\Vert} \text{metric} \mathbin{\Vert} \text{timestamp})$$
+* **Deterministic SHA-256 Hashing:** Every measurement calculates a hash: `hash = SHA256(device_id || metric || timestamp)`.
 * **Idempotent Ingestion:** The database enforces a `UNIQUE(message_hash)` constraint combined with `INSERT ... ON CONFLICT(message_hash) DO NOTHING`. Duplicate packets are discarded at the edge with zero CPU overhead upstream.
 
 ### D. Industrial Endianness Handling
@@ -114,15 +113,15 @@ pytest tests/
 
 ## 4. Configuration & Environment Variables
 
-| Variable | Default Value | Description |
-| :--- | :--- | :--- |
-| `DB_PATH` | `/data/edge_buffer.db` | Absolute path to the SQLite durable storage file. |
-| `MQTT_BROKER` | `mqtt-broker` | Hostname or IP address of the upstream MQTT broker. |
-| `MQTT_PORT` | `1883` | Network port for MQTT broker communication. |
-| `MQTT_TOPIC` | `industrial/telemetry` | Base MQTT topic for QoS 1 telemetry publications. |
-| `BATCH_SIZE` | `10` | Maximum number of pending records to dispatch per sync batch. |
-| `POLL_INTERVAL_SEC`| `2.0` | Ingestion and synchronization loop cadence (in seconds). |
-| `LOG_LEVEL` | `INFO` | Logging verbosity (`DEBUG`, `INFO`, `WARNING`, `ERROR`). |
+| Variable            | Default Value          | Description                                                   |
+| :------------------ | :--------------------- | :------------------------------------------------------------ |
+| `DB_PATH`           | `/data/edge_buffer.db`  | Absolute path to the SQLite durable storage file.             |
+| `MQTT_BROKER`       | `mqtt-broker`          | Hostname or IP address of the upstream MQTT broker.           |
+| `MQTT_PORT`         | `1883`                 | Network port for MQTT broker communication.                   |
+| `MQTT_TOPIC`        | `industrial/telemetry` | Base MQTT topic for QoS 1 telemetry publications.             |
+| `BATCH_SIZE`        | `10`                   | Maximum number of pending records to dispatch per sync batch. |
+| `POLL_INTERVAL_SEC` | `2.0`                  | Ingestion and synchronization loop cadence (in seconds).      |
+| `LOG_LEVEL`         | `INFO`                 | Logging verbosity (`DEBUG`, `INFO`, `WARNING`, `ERROR`).       |
 
 ---
 
